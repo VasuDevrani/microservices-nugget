@@ -12,25 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const config_1 = __importDefault(require("./config"));
-const database_1 = __importDefault(require("./database"));
-const app_1 = __importDefault(require("./app"));
-const errors_1 = __importDefault(require("./utils/errors"));
-const { PORT } = config_1.default;
-const StartServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    const app = (0, express_1.default)();
-    yield database_1.default.databaseConnection();
-    yield (0, app_1.default)(app);
-    // app.get('/', (req, res) => res.send("hehekj"))
-    (0, errors_1.default)(app);
-    app
-        .listen(PORT, () => {
-        console.log(`listening to port ${PORT}`);
-    })
-        .on('error', (err) => {
+const mongoose_1 = __importDefault(require("mongoose"));
+const config_1 = __importDefault(require("../config"));
+const { DB_URL } = config_1.default;
+exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield mongoose_1.default.connect(DB_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('db connected');
+    }
+    catch (err) {
+        console.log('Error ============ ON DB Connection');
         console.log(err);
-        process.exit();
-    });
+    }
 });
-StartServer();

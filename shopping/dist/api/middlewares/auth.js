@@ -8,16 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const api_1 = __importDefault(require("./api"));
-exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
-    app.use(express_1.default.json());
-    app.use((0, cors_1.default)());
-    // app.use(express.static(__dirname + '/public'));
-    (0, api_1.default)(app);
+const utils_1 = require("../../utils");
+const app_errors_1 = require("../../utils/errors/app-errors");
+const userAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const isAuthorized = yield (0, utils_1.ValidateSignature)(req);
+        if (isAuthorized) {
+            return next();
+        }
+        throw new app_errors_1.AuthorizeError("not authorised to access resources");
+    }
+    catch (error) {
+        next(error);
+    }
 });
+exports.default = userAuth;
