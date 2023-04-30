@@ -72,8 +72,7 @@ class ShoppingService {
             if (Array.isArray(products)) {
                 const ids = products.map(({ _id }) => _id);
                 // Perform RPC call
-                const productResponse = true;
-                yield (0, utils_1.RPCRequest)('PRODUCT_RPC', {
+                const productResponse = yield (0, utils_1.RPCRequest)('PRODUCT_RPC', {
                     type: 'VIEW_PRODUCTS',
                     data: ids,
                 });

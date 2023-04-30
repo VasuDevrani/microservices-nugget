@@ -26,7 +26,7 @@ const StartServer = () => __awaiter(void 0, void 0, void 0, function* () {
     (0, errors_1.default)(app);
     app
         .listen(PORT, () => {
-        console.log(`listening to port ${PORT}`);
+        console.log(`Product Service listening to port ${PORT}`);
     })
         .on('error', (err) => {
         console.log(err);

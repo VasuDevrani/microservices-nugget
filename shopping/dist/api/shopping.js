@@ -14,64 +14,65 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const shooppingService_1 = __importDefault(require("../services/shooppingService"));
 const auth_1 = __importDefault(require("./middlewares/auth"));
-exports.default = (app) => {
+const utils_1 = require("../utils");
+exports.default = (app, channel) => {
     const service = new shooppingService_1.default();
-    // SubscribeMessage(channel, service);
+    (0, utils_1.SubscribeMessage)(channel, service);
     // Cart
-    app.post("/cart", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.post('/cart', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
+        console.log(_id, req.body);
         const { product_id, qty } = req.body;
         const { data } = yield service.AddCartItem(_id, product_id, qty);
         res.status(200).json(data);
     }));
-    app.delete("/cart/:id", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.delete('/cart/:id', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const productId = req.params.id;
         const data = yield service.RemoveCartItem(_id, productId);
         res.status(200).json(data);
     }));
-    app.get("/cart", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/cart', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const data = yield service.GetCart(_id);
         return res.status(200).json(data);
     }));
     // Wishlist
-    app.post("/wishlist", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.post('/wishlist', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const { product_id } = req.body;
-        console.log(req.body);
         const data = yield service.AddToWishlist(_id, product_id);
         return res.status(200).json(data);
     }));
-    app.get("/wishlist", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/wishlist', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const data = yield service.GetWishlist(_id);
         return res.status(200).json(data);
     }));
-    app.delete("/wishlist/:id", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.delete('/wishlist/:id', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const product_id = req.params.id;
         const data = yield service.RemoveFromWishlist(_id, product_id);
         return res.status(200).json(data);
     }));
     // Orders
-    app.post("/order", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.post('/order', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         // const { txnNumber } = req.body;
         const data = yield service.CreateOrder(_id);
         return res.status(200).json(data);
     }));
-    app.get("/order/:id", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/order/:id', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const data = yield service.GetOrder(_id);
         return res.status(200).json(data);
     }));
-    app.get("/orders", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/orders', auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { _id } = req.user;
         const data = yield service.GetOrders(_id);
         return res.status(200).json(data);
     }));
-    app.get("/whoami", (req, res) => {
-        return res.status(200).json({ msg: "/shoping : I am Shopping Service" });
+    app.get('/whoami', (req, res) => {
+        return res.status(200).json({ msg: '/shoping : I am Shopping Service' });
     });
 };

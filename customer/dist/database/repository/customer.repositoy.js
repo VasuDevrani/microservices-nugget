@@ -48,8 +48,13 @@ class CustomerRepository {
     }
     FindCustomerById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const existingCustomer = yield models_1.CustomerModel.findById(id).populate('address');
-            return existingCustomer;
+            try {
+                const existingCustomer = yield models_1.CustomerModel.findById(id).populate('address');
+                return existingCustomer;
+            }
+            catch (err) {
+                throw (err);
+            }
         });
     }
     DeleteCustomerById(id) {

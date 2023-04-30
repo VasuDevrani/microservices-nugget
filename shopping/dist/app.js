@@ -15,9 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const api_1 = __importDefault(require("./api"));
+const utils_1 = require("./utils");
 exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(express_1.default.json());
     app.use((0, cors_1.default)());
     // app.use(express.static(__dirname + '/public'));
-    (0, api_1.default)(app);
+    const channel = yield (0, utils_1.CreateChannel)();
+    (0, api_1.default)(app, channel);
 });

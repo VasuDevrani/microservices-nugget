@@ -34,6 +34,7 @@ exports.default = (app, channel) => {
     }));
     app.get("/category/:type", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const type = req.params.type;
+        console.log(type);
         try {
             const { data } = yield service.GetProductsByCategory(type);
             return res.status(200).json(data);

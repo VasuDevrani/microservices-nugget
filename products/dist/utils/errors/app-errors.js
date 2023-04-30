@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotFoundError = exports.AuthorizeError = exports.ValidationError = exports.APIError = void 0;
+exports.STATUS_CODES = exports.NotFoundError = exports.AuthorizeError = exports.ValidationError = exports.APIError = void 0;
 const STATUS_CODES = {
     OK: 200,
     BAD_REQUEST: 400,
@@ -8,6 +8,7 @@ const STATUS_CODES = {
     NOT_FOUND: 404,
     INTERNAL_ERROR: 500,
 };
+exports.STATUS_CODES = STATUS_CODES;
 class BaseError extends Error {
     constructor({ name, statusCode, description }) {
         super(description);
