@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GenerateSignature = exports.GenerateSalt = exports.ValidatePassword = exports.GeneratePassword = exports.ValidateSignature = exports.FormateData = void 0;
+exports.RPCObserver = exports.PublishMessage = exports.CreateChannel = exports.GenerateSignature = exports.GenerateSalt = exports.ValidatePassword = exports.GeneratePassword = exports.ValidateSignature = exports.FormateData = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const amqplib_1 = __importDefault(require("amqplib"));
 const config_1 = __importDefault(require("../config"));
-const { APP_SECRET } = config_1.default;
+const { APP_SECRET, MSG_QUEUE_URL, EXCHANGE_NAME } = config_1.default;
+// let amqplibConnection = null;
 //Utility functions
 const GenerateSalt = () => __awaiter(void 0, void 0, void 0, function* () {
     return yield bcryptjs_1.default.genSalt();
@@ -58,84 +60,49 @@ const FormateData = (data) => {
     }
 };
 exports.FormateData = FormateData;
+// try {
+//   const channel = await amqplib.connect(MSG_QUEUE_URL);
+//   await channel.assertQueue(EXCHANGE_NAME, { durable: true });
+//   return channel;
+// } catch (err) {
+//   throw err;
+// }
 //Message Broker
-// const getChannel = async () => {
-//   if (amqplibConnection === null) {
-//     amqplibConnection = await amqplib.connect(MSG_QUEUE_URL);
-//   }
-//   return await amqplibConnection.createChannel();
-// };
-// module.exports.CreateChannel = async () => {
-//   try {
-//     const channel = await getChannel();
-//     await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
-//     return channel;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
-// module.exports.PublishMessage = (channel, service, msg) => {
-//   channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
-//   console.log("Sent: ", msg);
-// };
-// module.exports.SubscribeMessage = async (channel, service) => {
-//   await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
-//   const q = await channel.assertQueue("", { exclusive: true });
-//   console.log(` Waiting for messages in queue: ${q.queue}`);
-//   channel.bindQueue(q.queue, EXCHANGE_NAME, SHOPPING_SERVICE);
-//   channel.consume(
-//     q.queue,
-//     (msg) => {
-//       if (msg.content) {
-//         console.log("the message is:", msg.content.toString());
-//         service.SubscribeEvents(msg.content.toString());
-//       }
-//       console.log("[X] received");
-//     },
-//     {
-//       noAck: true,
-//     }
-//   );
-// };
-// const requestData = async (RPC_QUEUE_NAME, requestPayload, uuid) => {
-//   try {
-//     const channel = await getChannel();
-//     const q = await channel.assertQueue("", { exclusive: true });
-//     channel.sendToQueue(
-//       RPC_QUEUE_NAME,
-//       Buffer.from(JSON.stringify(requestPayload)),
-//       {
-//         replyTo: q.queue,
-//         correlationId: uuid,
-//       }
-//     );
-//     return new Promise((resolve, reject) => {
-//       // timeout n
-//       const timeout = setTimeout(() => {
-//         channel.close();
-//         resolve("API could not fullfil the request!");
-//       }, 8000);
-//       channel.consume(
-//         q.queue,
-//         (msg) => {
-//           if (msg.properties.correlationId == uuid) {
-//             resolve(JSON.parse(msg.content.toString()));
-//             clearTimeout(timeout);
-//           } else {
-//             reject("data Not found!");
-//           }
-//         },
-//         {
-//           noAck: true,
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     return "error";
-//   }
-// };
-// module.exports.RPCRequest = async (RPC_QUEUE_NAME, requestPayload) => {
-//   const uuid = uuid4(); // correlationId
-//   return await requestData(RPC_QUEUE_NAME, requestPayload, uuid);
-// };
+const CreateChannel = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const connection = yield amqplib_1.default.connect(MSG_QUEUE_URL);
+        const channel = yield connection.createChannel();
+        yield channel.assertQueue(EXCHANGE_NAME, { durable: true });
+        return channel;
+    }
+    catch (err) {
+        console.log(err);
+        throw err;
+    }
+});
+exports.CreateChannel = CreateChannel;
+const PublishMessage = (channel, service, msg) => {
+    channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
+    console.log("Sent: ", msg);
+};
+exports.PublishMessage = PublishMessage;
+const RPCObserver = (RPC_QUEUE_NAME, service, channel) => __awaiter(void 0, void 0, void 0, function* () {
+    yield channel.assertQueue(RPC_QUEUE_NAME, {
+        durable: false,
+    });
+    channel.prefetch(1);
+    channel.consume(RPC_QUEUE_NAME, (msg) => __awaiter(void 0, void 0, void 0, function* () {
+        if (msg === null || msg === void 0 ? void 0 : msg.content) {
+            // DB Operation
+            const payload = JSON.parse(msg.content.toString());
+            const response = yield service.serveRPCRequest(payload);
+            channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
+                correlationId: msg.properties.correlationId,
+            });
+            channel.ack(msg);
+        }
+    }), {
+        noAck: false,
+    });
+});
+exports.RPCObserver = RPCObserver;

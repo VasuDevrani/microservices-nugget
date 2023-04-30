@@ -1,11 +1,13 @@
 import { Express } from "express";
 import ProductService from "../services/productService";
 import { ProductInterface } from "../types/product/productInputs.types";
+import { RPCObserver } from "../utils";
+import { Channel } from "amqplib";
 
-export default (app: Express) => {
+export default (app: Express, channel: Channel) => {
   const service = new ProductService();
 
-  // RPCObserver("PRODUCT_RPC", service);
+  RPCObserver("PRODUCT_RPC", service, channel);
 
   app.post("/product/create", async (req, res) => {
     const { name, desc, type, unit, price, available, suplier, banner } =
@@ -26,7 +28,7 @@ export default (app: Express) => {
 
   app.get("/category/:type", async (req, res) => {
     const type = req.params.type;
-
+    console.log(type)
     try {
       const { data } = await service.GetProductsByCategory(type);
       return res.status(200).json(data);

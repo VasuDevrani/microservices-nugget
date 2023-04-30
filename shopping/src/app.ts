@@ -1,11 +1,12 @@
 import express, {Express} from 'express'
 import cors from 'cors'
 import shopping from './api';
+import { CreateChannel } from './utils';
 
 export default async(app: Express) => {
     app.use(express.json());
     app.use(cors());
     // app.use(express.static(__dirname + '/public'));
-
-    shopping(app);
+    const channel = await CreateChannel();
+    shopping(app, channel);
 }

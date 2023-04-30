@@ -45,10 +45,14 @@ class CustomerRepository {
   }
 
   async FindCustomerById(id: string) {
-    const existingCustomer = await CustomerModel.findById(id).populate(
-      'address',
-    );
-    return existingCustomer;
+    try{
+      const existingCustomer = await CustomerModel.findById(id).populate(
+        'address',
+      );
+      return existingCustomer;
+    }catch(err){
+      throw(err);
+    }
   }
 
   async DeleteCustomerById(id: string) {

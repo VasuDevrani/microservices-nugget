@@ -1,4 +1,9 @@
 import ShoppingRepository from '../database/repository/shopping.repositoy';
+import {
+  CartInterface,
+  ProductInterface,
+} from '../types/shopping/shoppingInputs.types';
+import { FormateData, RPCRequest } from '../utils';
 
 // All Business logic will be here
 class ShoppingService {
@@ -9,24 +14,24 @@ class ShoppingService {
   }
 
   // Cart Info
-  async AddCartItem(customerId: string, product_id: string, qty: number) {
+  async AddCartItem(
+    customerId: string,
+    product_id: string,
+    qty: number | undefined,
+  ) {
     // Grab product info from product Service through RPC
-    // const productResponse = await RPCRequest("PRODUCT_RPC", {
-    //   type: "VIEW_PRODUCT",
-    //   data: product_id,
-    // });
-    // if (productResponse && productResponse._id) {
-    //   const data = await this.repository.ManageCart(
-    //     customerId,
-    //     productResponse,
-    //     qty
-    //   );
-    const data={
-      name: "hekdj"
+    const productResponse = (await RPCRequest('PRODUCT_RPC', {
+      type: 'VIEW_PRODUCT',
+      data: product_id,
+    })) as ProductInterface;
+    if (productResponse && productResponse._id) {
+      const data = await this.repository.ManageCart(productResponse, {
+        customerId,
+        qty,
+      });
+      return { data };
     }
-      return {data};
-    // }
-    // throw new Error("Product data not found!");
+    throw new Error('Product data not found!');
   }
 
   async RemoveCartItem(customerId: string, product_id: string) {
@@ -58,20 +63,19 @@ class ShoppingService {
     if (!wishlist) {
       return {};
     }
-    // const { products } = wishlist;
+    const { products } = wishlist;
 
-    // if (Array.isArray(products)) {
-    //   const ids = products.map(({ _id }) => _id);
-    //   // Perform RPC call
-    //   const productResponse = true
-    //   // await RPCRequest('PRODUCT_RPC', {
-    //   //   type: 'VIEW_PRODUCTS',
-    //   //   data: ids,
-    //   // });
-    //   if (productResponse) {
-    //     return productResponse;
-    //   }
-    // }
+    if (Array.isArray(products)) {
+      const ids = products.map(({ _id }) => _id);
+      // Perform RPC call
+      const productResponse = await RPCRequest('PRODUCT_RPC', {
+        type: 'VIEW_PRODUCTS',
+        data: ids,
+      });
+      if (productResponse) {
+        return productResponse;
+      }
+    }
 
     return wishlist;
   }
@@ -86,53 +90,53 @@ class ShoppingService {
   }
 
   async GetOrders(customerId: string) {
-    return this.repository.Orders(customerId, "");
+    return this.repository.Orders(customerId, '');
   }
 
-  // async ManageCart(item: ProductInterface, {customerId, qty, isRemove}: CartInterface) {
-  //   const cartResult = await this.AddCartItem(
-  //     customerId,
-  //     item,
-  //     qty,
-  //     isRemove,
-  //   );
-  //   return FormateData(cartResult);
-  // }
+  async ManageCart(
+    item: ProductInterface,
+    { customerId, qty, isRemove }: CartInterface,
+  ) {
+    const cartResult = await this.AddCartItem(customerId, item._id, qty);
+    return FormateData(cartResult);
+  }
 
-  // async SubscribeEvents(payload) {
-  //   payload = JSON.parse(payload);
-  //   const { event, data } = payload;
-  //   const { userId, product, qty } = data;
+  async SubscribeEvents(payload: string) {
+    const parsedPayload = JSON.parse(payload);
+    const { event, data } = parsedPayload;
+    const { userId: customerId, product, qty } = data;
+    let isRemove: boolean;
 
-  //   switch (event) {
-  //     case 'ADD_TO_CART':
-  //       this.ManageCart(userId, product, qty, false);
-  //       break;
-  //     case 'REMOVE_FROM_CART':
-  //       this.ManageCart(userId, product, qty, true);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
+    switch (event) {
+      case 'ADD_TO_CART':
+        isRemove = false;
+        this.ManageCart(product, { customerId, qty, isRemove } as unknown as {
+          customerId: string;
+          qty: number;
+          isRemove: boolean;
+        });
+        break;
+      case 'REMOVE_FROM_CART':
+        isRemove = true;
+        this.ManageCart(product, { customerId, qty, isRemove } as unknown as {
+          customerId: string;
+          qty: number;
+          isRemove: boolean;
+        });
+        break;
+      case 'DELETE_PROFILE':
+        await this.deleteProfileData(data.userId);
+        break;
+      default:
+        break;
+    }
+  }
 
   async deleteProfileData(customerId: string) {
     return this.repository.deleteProfileData(customerId);
   }
 
-  // async SubscribeEvents(payload) {
-  //   payload = JSON.parse(payload);
-  //   const { event, data } = payload;
-  //   switch (event) {
-  //     case 'DELETE_PROFILE':
-  //       await this.deleteProfileData(data.userId);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
-
-  // async GetOrderPayload(userId, order, event) {
+  // async GetOrderPayload(userId: string, order: string, event) {
   //   if (order) {
   //     const payload = {
   //       event: event,

@@ -14,7 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const customerService_1 = __importDefault(require("../services/customerService"));
 const auth_1 = __importDefault(require("./middlewares/auth"));
-exports.default = (app) => {
+const utils_1 = require("../utils");
+const config_1 = __importDefault(require("../config"));
+const { SHOPPING_SERVICE } = config_1.default;
+exports.default = (app, channel) => {
     const service = new customerService_1.default();
     app.post("/signup", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -65,9 +68,9 @@ exports.default = (app) => {
     app.delete("/profile", auth_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { _id } = req.user;
-            const { data } = yield service.DeleteProfile(_id);
+            const { data, payload } = yield service.DeleteProfile(_id);
             // Send message to Shopping Service for removing cart & wishlist
-            //   PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(payload));
+            (0, utils_1.PublishMessage)(channel, SHOPPING_SERVICE, JSON.stringify(payload));
             return res.json(data);
         }
         catch (error) {

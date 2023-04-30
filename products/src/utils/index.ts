@@ -1,11 +1,14 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import amqplib, { Channel } from 'amqplib'
 
 import CONFIG from '../config';
 import { Request } from 'express';
 import { CustomRequest } from '../types/api/customRequest.types';
+import ProductService from '../services/productService';
 
-const { APP_SECRET } = CONFIG;
+const { APP_SECRET, MSG_QUEUE_URL, EXCHANGE_NAME } = CONFIG;
+// let amqplibConnection = null;
 
 //Utility functions
 const GenerateSalt = async () => {
@@ -54,6 +57,59 @@ const FormateData = (data: any) => {
     throw new Error('Data Not found!');
   }
 };
+// try {
+//   const channel = await amqplib.connect(MSG_QUEUE_URL);
+//   await channel.assertQueue(EXCHANGE_NAME, { durable: true });
+//   return channel;
+// } catch (err) {
+//   throw err;
+// }
+
+//Message Broker
+const CreateChannel = async () => {
+  try{
+    const connection = await amqplib.connect(MSG_QUEUE_URL);
+    const channel = await connection.createChannel();
+    await channel.assertQueue(EXCHANGE_NAME, { durable: true });
+    return channel;
+  }catch(err){
+    console.log(err)
+    throw err;
+  }
+};
+
+const PublishMessage = (channel: Channel, service: string, msg: string) => {
+  channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
+  console.log("Sent: ", msg);
+};
+
+const RPCObserver = async (RPC_QUEUE_NAME: string, service: ProductService, channel: Channel) => {
+  await channel.assertQueue(RPC_QUEUE_NAME, {
+    durable: false,
+  });
+  channel.prefetch(1);
+  channel.consume(
+    RPC_QUEUE_NAME,
+    async (msg) => {
+      if (msg?.content) {
+        // DB Operation
+        const payload = JSON.parse(msg.content.toString());
+        const response = await service.serveRPCRequest(payload);
+        channel.sendToQueue(
+          msg.properties.replyTo,
+          Buffer.from(JSON.stringify(response)),
+          {
+            correlationId: msg.properties.correlationId,
+          }
+        );
+        channel.ack(msg);
+      }
+    },
+    {
+      noAck: false,
+    }
+  );
+};
 
 export {
   FormateData,
@@ -62,56 +118,7 @@ export {
   ValidatePassword,
   GenerateSalt,
   GenerateSignature,
+  CreateChannel,
+  PublishMessage, 
+  RPCObserver
 };
-
-//Message Broker
-// const getChannel = async () => {
-//   if (amqplibConnection === null) {
-//     amqplibConnection = await amqplib.connect(MSG_QUEUE_URL);
-//   }
-//   return await amqplibConnection.createChannel();
-// };
-
-// module.exports.CreateChannel = async () => {
-//   try {
-//     const channel = await getChannel();
-//     await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
-//     return channel;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
-
-// module.exports.PublishMessage = (channel, service, msg) => {
-//   channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
-//   console.log("Sent: ", msg);
-// };
-
-// module.exports.RPCObserver = async (RPC_QUEUE_NAME, service) => {
-//   const channel = await getChannel();
-//   await channel.assertQueue(RPC_QUEUE_NAME, {
-//     durable: false,
-//   });
-//   channel.prefetch(1);
-//   channel.consume(
-//     RPC_QUEUE_NAME,
-//     async (msg) => {
-//       if (msg.content) {
-//         // DB Operation
-//         const payload = JSON.parse(msg.content.toString());
-//         const response = await service.serveRPCRequest(payload);
-//         channel.sendToQueue(
-//           msg.properties.replyTo,
-//           Buffer.from(JSON.stringify(response)),
-//           {
-//             correlationId: msg.properties.correlationId,
-//           }
-//         );
-//         channel.ack(msg);
-//       }
-//     },
-//     {
-//       noAck: false,
-//     }
-//   );
-// };

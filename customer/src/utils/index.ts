@@ -1,11 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import amqplib, { Channel } from 'amqplib'
 
 import CONFIG from '../config';
 import { Request } from 'express';
 import { CustomRequest } from '../types/api/customRequest.types';
+import CustomerService from '../services/customerService';
 
-const { APP_SECRET } = CONFIG;
+const { APP_SECRET, MSG_QUEUE_URL, EXCHANGE_NAME, CUSTOMER_SERVICE } = CONFIG;
 
 //Utility functions
 const GenerateSalt = async () => {
@@ -38,7 +40,6 @@ const ValidateSignature = async (req: Request) => {
       signature.split(' ')[1],
       APP_SECRET,
     ) as jwt.JwtPayload;
-    console.log(payload);
     
     (req as CustomRequest).user = payload;
     return true;
@@ -56,6 +57,43 @@ const FormateData = (data: any) => {
   }
 };
 
+//Message Broker
+// create connection -> channel -> queue
+const CreateChannel = async() => {
+  const connection = await amqplib.connect(MSG_QUEUE_URL);
+    const channel = await connection.createChannel();
+    await channel.assertQueue(EXCHANGE_NAME, { durable: true });
+    return channel;
+}
+
+const PublishMessage = (channel: Channel, service: string, msg: string) => {
+  // exchange publishes message to certain queue based on bindingkey
+  channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
+  console.log('Sent: ', msg);
+};
+
+const SubscribeMessage = async (channel: Channel, service: CustomerService) => {
+  await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
+  const q = await channel.assertQueue('', { exclusive: true });
+  console.log(` Waiting for messages in queue: ${q.queue}`);
+
+  channel.bindQueue(q.queue, EXCHANGE_NAME, CUSTOMER_SERVICE);
+
+  channel.consume(
+    q.queue,
+    (msg) => {
+      if (msg?.content) {
+        console.log('the message is:', msg.content.toString());
+        // service.SubscribeEvents(msg.content.toString());
+      }
+      console.log('[X] received');
+    },
+    {
+      noAck: true,
+    },
+  );
+};
+
 export {
   FormateData,
   ValidateSignature,
@@ -63,43 +101,7 @@ export {
   ValidatePassword,
   GenerateSalt,
   GenerateSignature,
+  CreateChannel,
+  PublishMessage,
+  SubscribeMessage
 };
-
-//Message Broker
-// module.exports.CreateChannel = async () => {
-//   try {
-//     const connection = await amqplib.connect(MSG_QUEUE_URL);
-//     const channel = await connection.createChannel();
-//     await channel.assertQueue(EXCHANGE_NAME, 'direct', { durable: true });
-//     return channel;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
-
-// module.exports.PublishMessage = (channel, service, msg) => {
-//   channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
-//   console.log('Sent: ', msg);
-// };
-
-// module.exports.SubscribeMessage = async (channel, service) => {
-//   await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
-//   const q = await channel.assertQueue('', { exclusive: true });
-//   console.log(` Waiting for messages in queue: ${q.queue}`);
-
-//   channel.bindQueue(q.queue, EXCHANGE_NAME, CUSTOMER_SERVICE);
-
-//   channel.consume(
-//     q.queue,
-//     (msg) => {
-//       if (msg.content) {
-//         console.log('the message is:', msg.content.toString());
-//         service.SubscribeEvents(msg.content.toString());
-//       }
-//       console.log('[X] received');
-//     },
-//     {
-//       noAck: true,
-//     },
-//   );
-// };

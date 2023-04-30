@@ -1,8 +1,8 @@
 export interface CartInterface {
   customerId: string;
   items?: { product: ProductInterface; unit: number }[];
-  qty: number;
-  isRemove: boolean;
+  qty?: number;
+  isRemove?: boolean;
 }
 export interface ProductInterface {
   _id: string;

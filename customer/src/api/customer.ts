@@ -2,8 +2,13 @@ import { Express } from "express";
 import CustomerService from "../services/customerService";
 import { CustomRequest } from "../types/api/customRequest.types";
 import userAuth from "./middlewares/auth";
+import { Channel } from "amqplib";
+import { PublishMessage } from "../utils";
+import config from "../config";
 
-export default (app: Express) => {
+const { SHOPPING_SERVICE } = config;
+
+export default (app: Express, channel: Channel) => {
   const service = new CustomerService();
 
   app.post("/signup", async (req, res, next) => {
@@ -48,6 +53,7 @@ export default (app: Express) => {
       const data = await service.GetProfile(_id);
       return res.json(data);
     } catch (error) {
+      console.log("jjdkhkjd")
       next(error);
     }
   });
@@ -55,9 +61,9 @@ export default (app: Express) => {
   app.delete("/profile", userAuth, async (req, res, next) => {
     try {
       const { _id } = (req as CustomRequest).user;
-      const { data } = await service.DeleteProfile(_id);
+      const { data, payload } = await service.DeleteProfile(_id);
       // Send message to Shopping Service for removing cart & wishlist
-    //   PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(payload));
+      PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(payload));
       return res.json(data);
     } catch (error) {
       next(error);

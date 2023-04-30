@@ -12,14 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const api_1 = __importDefault(require("./api"));
-const utils_1 = require("./utils");
-exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
-    app.use(express_1.default.json());
-    app.use((0, cors_1.default)());
-    // app.use(express.static(__dirname + '/public'));
-    const channel = yield (0, utils_1.CreateChannel)();
-    (0, api_1.default)(app, channel);
-});
+const customerService_1 = __importDefault(require("../services/customerService"));
+exports.default = (app) => {
+    const service = new customerService_1.default();
+    app.use('/app-events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { payload } = req.body;
+        //handle subscribe events
+        // service.SubscribeEvents(payload);
+        console.log("============= Shopping ================");
+        console.log(payload);
+        res.json(payload);
+    }));
+};
