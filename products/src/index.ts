@@ -1,13 +1,13 @@
 import express from 'express';
 import CONFIG from './config';
 // import database from './database';
-import expressApp from './app';
+import expressApp, { CreateServer } from './app';
 import errorHandler from './utils/errors'
 
 const { PORT } = CONFIG;
 
 const StartServer = async () => {
-  const app = express();
+  const app = await CreateServer();
 
   // await database.databaseConnection();
 
