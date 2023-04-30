@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const shopping_repositoy_1 = __importDefault(require("../database/repository/shopping.repositoy"));
+const product_repo_1 = __importDefault(require("../database/repository/product.repo"));
 const utils_1 = require("../utils");
 // All Business logic will be here
 class ProductService {
     constructor() {
-        this.repository = new shopping_repositoy_1.default();
+        this.repository = new product_repo_1.default();
     }
     CreateProduct(productInputs) {
         return __awaiter(this, void 0, void 0, function* () {

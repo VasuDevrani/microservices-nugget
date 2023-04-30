@@ -1,6 +1,6 @@
 import express from 'express';
 import CONFIG from './config';
-import database from './database';
+// import database from './database';
 import expressApp from './app';
 import errorHandler from './utils/errors'
 
@@ -9,7 +9,7 @@ const { PORT } = CONFIG;
 const StartServer = async () => {
   const app = express();
 
-  await database.databaseConnection();
+  // await database.databaseConnection();
 
   await expressApp(app);
 

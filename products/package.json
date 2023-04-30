@@ -32,6 +32,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@prisma/client": "^4.13.0",
     "amqplib": "^0.10.3",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
@@ -44,6 +45,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^7.1.0",
     "nodemon": "^2.0.22",
+    "prisma": "^4.13.0",
     "tsconfig-paths": "^4.2.0",
     "uuid": "^9.0.0"
   },
@@ -51,5 +53,8 @@
     "hooks": {
       "pre-commit": "yarn lint"
     }
+  },
+  "prisma": {
+    "schema": "./src/database/prisma/schema.prisma"
   }
 }

@@ -1,4 +1,4 @@
-import ProductRepository from '../database/repository/shopping.repositoy';
+import ProductRepository from '../database/repository/product.repo';
 import { ProductInterface } from '../types/product/productInputs.types';
 import { FormateData } from '../utils';
 

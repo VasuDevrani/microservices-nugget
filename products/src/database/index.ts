@@ -1,4 +1,3 @@
-import databaseConnection from './connection';
-import ProductRepository from './repository/shopping.repositoy';
+import ProductRepository from './repository/product.repo';
 
-export default { databaseConnection, ProductRepository };
+export default { ProductRepository };
