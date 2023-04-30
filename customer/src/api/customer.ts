@@ -53,7 +53,6 @@ export default (app: Express, channel: Channel) => {
       const data = await service.GetProfile(_id);
       return res.json(data);
     } catch (error) {
-      console.log("jjdkhkjd")
       next(error);
     }
   });

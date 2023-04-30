@@ -17,4 +17,5 @@ export default {
   MSG_QUEUE_URL: process.env.MSG_QUEUE_URL as string,
   CUSTOMER_SERVICE: "customer_service",
   SHOPPING_SERVICE: "shopping_service",
+  SENTRY: process.env.SENTRY_URI as string,
 };

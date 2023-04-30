@@ -44,7 +44,6 @@ const ValidateSignature = async (req: Request) => {
     (req as CustomRequest).user = payload;
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
