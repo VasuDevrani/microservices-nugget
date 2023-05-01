@@ -14,6 +14,7 @@ Sentry.init({
 export default ((app: Express) => {
   app.use((error: ErrorInterface, req: Request, res: Response, next: NextFunction) => {
     let reportError = true;
+    console.log("err");
 
     // skip common / known errors
     [NotFoundError, ValidationError, AuthorizeError].forEach((typeOfError) => {

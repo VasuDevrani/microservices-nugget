@@ -21,4 +21,5 @@ exports.default = {
     // binding keys
     CUSTOMER_SERVICE: "customer_service",
     SHOPPING_SERVICE: "shopping_service",
+    SENTRY: process.env.SENTRY_URI,
 };

@@ -12,7 +12,7 @@ export const StartServer = async () => {
 
   await expressApp(app);
 
-  // app.get('/', (req, res) => res.status(200).send("test"))
+  app.get('/', (req, res) => res.status(200).send("test"))
 
   errorHandler(app);
 

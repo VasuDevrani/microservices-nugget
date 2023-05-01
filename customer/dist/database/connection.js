@@ -25,6 +25,6 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (err) {
         console.log('Error ============ ON DB Connection');
-        console.log(err);
+        throw err;
     }
 });

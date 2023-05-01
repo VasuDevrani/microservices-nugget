@@ -8,6 +8,7 @@
     "format": "eslint src/**/*.ts --fix",
     "build": "tsc",
     "dev": "nodemon --exec ts-node ./src",
+    "db": "npx prisma db push",
     "start": "node ./dist",
     "test": "jest"
   },

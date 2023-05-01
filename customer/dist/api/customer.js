@@ -62,7 +62,6 @@ exports.default = (app, channel) => {
             return res.json(data);
         }
         catch (error) {
-            console.log("jjdkhkjd");
             next(error);
         }
     }));
