@@ -1,7 +1,10 @@
 # 🛒Cart Shop
-### Event driven microservice with a blend
+### Event driven microservice with tech blend and CI-CD
 
 <img src="https://user-images.githubusercontent.com/101383635/235835542-ca1ff6df-8516-49a0-ac4a-e779ccd9c48b.png" width=700/>
+<img src="https://user-images.githubusercontent.com/101383635/236002694-81b05db8-4423-4d9e-ac18-0aa2338729d8.png" width=700/>
+
+
 
 ## Build details
 
@@ -12,6 +15,11 @@ Structure :
   - loosely coupled microservices
   - database per service
   - RPC and Pub/Sub using Message Broker
+  
+CI-CD:
+  - github actions
+  - AWS Elastic Beanstalk
+  - Docker-Nodejs environment
   
 Tech :
   - Language : typescript
@@ -47,7 +55,5 @@ Services :
 - git clone `https://github.com/VasuDevrani/cartshop-mcr-svr.git`
 - `docker-compose up`
 - wait for all services to start
-    
-## In progress
-- writing unit test
-- CI-CD
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/24770121-448496c5-1d77-4e4c-898c-39da577c3b6a?action=collection%2Ffork&collection-url=entityId%3D24770121-448496c5-1d77-4e4c-898c-39da577c3b6a%26entityType%3Dcollection%26workspaceId%3D1a3ab5e7-5690-4728-a316-dec972dadd6f)
