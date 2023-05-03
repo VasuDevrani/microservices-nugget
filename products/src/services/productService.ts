@@ -19,7 +19,7 @@ class ProductService {
 
     return FormateData({
       products,
-      categories: Object.keys(products.map(({ type }) => type)),
+      categories: Object.keys(products.map(({ type }: {type: string}) => type)),
     });
   }
 

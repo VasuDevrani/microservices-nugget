@@ -24,7 +24,6 @@ class ShoppingService {
       type: 'VIEW_PRODUCT',
       data: product_id,
     })) as ProductInterface;
-    console.log(productResponse)
     if (productResponse) {
       const data = await this.repository.ManageCart(productResponse, {
         customerId,

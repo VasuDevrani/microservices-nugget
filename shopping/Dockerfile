@@ -1,12 +1,12 @@
 FROM node:14-alpine
 
-WORKDIR /app/shopping
+WORKDIR /app/shopping/
 
-COPY package*.json .
+COPY package*.json /app/shopping/
 
 RUN npm install
 
-COPY . .
+COPY . /app/shopping/
 
 RUN npm run build
 

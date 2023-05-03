@@ -1,13 +1,14 @@
 FROM node:14-alpine
 
-WORKDIR /app/products
+WORKDIR /app/products/
 
-COPY package*.json .
+COPY package*.json /app/products/
 
 RUN npm install
 
-COPY . .
+COPY . /app/products/
 
+RUN npx prisma generate
 RUN npm run build
 
 EXPOSE 5001

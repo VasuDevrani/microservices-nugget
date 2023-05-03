@@ -1,12 +1,12 @@
 FROM node:14-alpine
 
-WORKDIR /app/customer
+WORKDIR /app/customer/
 
-COPY package*.json .
+COPY package*.json /app/customer/
 
 RUN npm install
 
-COPY . .
+COPY . /app/customer/
 
 RUN npm run build
 
