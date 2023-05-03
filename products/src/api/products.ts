@@ -1,34 +1,37 @@
-import { Express } from "express";
-import ProductService from "../services/productService";
-import { ProductInterface } from "../types/product/productInputs.types";
-import { RPCObserver } from "../utils";
-import { Channel } from "amqplib";
+import { Express } from 'express';
+import ProductService from '../services/productService';
+import { ProductInterface } from '../types/product/productInputs.types';
+import { RPCObserver } from '../utils';
+import { Channel } from 'amqplib';
 
 export default (app: Express, channel: Channel) => {
   const service = new ProductService();
 
-  RPCObserver("PRODUCT_RPC", service, channel);
+  RPCObserver('PRODUCT_RPC', service, channel);
 
-  app.post("/product/create", async (req, res) => {
+  app.post('/create', async (req, res) => {
     const { name, desc, type, unit, price, available, suplier, banner } =
       req.body;
-    // validation
-    const { data } = await service.CreateProduct({
-      name,
-      desc,
-      type,
-      unit,
-      price,
-      available,
-      suplier,
-      banner,
-    } as ProductInterface);
-    return res.json(data);
+    try {
+      // validation
+      const { data } = await service.CreateProduct({
+        name,
+        desc,
+        type,
+        unit,
+        price,
+        available,
+        suplier,
+        banner,
+      } as ProductInterface);
+      return res.json(data);
+    } catch (err) {
+      return res.status(404).json({ err });
+    }
   });
 
-  app.get("/category/:type", async (req, res) => {
+  app.get('/category/:type', async (req, res) => {
     const type = req.params.type;
-    console.log(type)
     try {
       const { data } = await service.GetProductsByCategory(type);
       return res.status(200).json(data);
@@ -37,7 +40,7 @@ export default (app: Express, channel: Channel) => {
     }
   });
 
-  app.get("/:id", async (req, res) => {
+  app.get('/:id', async (req, res) => {
     const productId = req.params.id;
 
     try {
@@ -48,19 +51,24 @@ export default (app: Express, channel: Channel) => {
     }
   });
 
-  app.post("/ids", async (req, res) => {
+  app.post('/ids', async (req, res) => {
     const { ids } = req.body;
-    const products = await service.GetSelectedProducts(ids);
-    return res.status(200).json(products);
+    try {
+      const products = await service.GetSelectedProducts(ids);
+      return res.status(200).json(products);
+    } catch (err) {
+      return res.status(404).json({ err });
+    }
   });
-  app.get("/whoami", (req, res) => {
+
+  app.get('/whoami', (req, res) => {
     return res
       .status(200)
-      .json({ msg: "/ or /products : I am products Service" });
+      .json({ msg: '/ or /products : I am products Service' });
   });
 
   //get Top products and category
-  app.get("/", async (req, res) => {
+  app.get('/', async (req, res) => {
     //check validation
     try {
       const { data } = await service.GetProducts();

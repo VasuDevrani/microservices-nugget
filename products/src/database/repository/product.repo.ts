@@ -52,15 +52,13 @@ class ProductRepository {
   }
 
   async FindSelectedProducts(selectedIds: string[]) {
-    const products = await prisma.product.findMany({
+    return await prisma.product.findMany({
       where: {
         id: {
           in: selectedIds,
         },
       },
     });
-
-    console.log(products);
   }
 }
 

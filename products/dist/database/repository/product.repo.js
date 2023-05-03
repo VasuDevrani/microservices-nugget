@@ -55,14 +55,13 @@ class ProductRepository {
     }
     FindSelectedProducts(selectedIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            const products = yield prisma.product.findMany({
+            return yield prisma.product.findMany({
                 where: {
                     id: {
                         in: selectedIds,
                     },
                 },
             });
-            console.log(products);
         });
     }
 }

@@ -46,7 +46,6 @@ const ValidateSignature = (req) => __awaiter(void 0, void 0, void 0, function* (
         return true;
     }
     catch (err) {
-        console.log(err);
         return false;
     }
 });

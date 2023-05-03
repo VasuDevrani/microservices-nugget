@@ -16,25 +16,29 @@ const productService_1 = __importDefault(require("../services/productService"));
 const utils_1 = require("../utils");
 exports.default = (app, channel) => {
     const service = new productService_1.default();
-    (0, utils_1.RPCObserver)("PRODUCT_RPC", service, channel);
-    app.post("/product/create", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, utils_1.RPCObserver)('PRODUCT_RPC', service, channel);
+    app.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { name, desc, type, unit, price, available, suplier, banner } = req.body;
-        // validation
-        const { data } = yield service.CreateProduct({
-            name,
-            desc,
-            type,
-            unit,
-            price,
-            available,
-            suplier,
-            banner,
-        });
-        return res.json(data);
+        try {
+            // validation
+            const { data } = yield service.CreateProduct({
+                name,
+                desc,
+                type,
+                unit,
+                price,
+                available,
+                suplier,
+                banner,
+            });
+            return res.json(data);
+        }
+        catch (err) {
+            return res.status(404).json({ err });
+        }
     }));
-    app.get("/category/:type", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/category/:type', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const type = req.params.type;
-        console.log(type);
         try {
             const { data } = yield service.GetProductsByCategory(type);
             return res.status(200).json(data);
@@ -43,7 +47,7 @@ exports.default = (app, channel) => {
             return res.status(404).json({ error });
         }
     }));
-    app.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const productId = req.params.id;
         try {
             const { data } = yield service.GetProductDescription(productId);
@@ -53,18 +57,23 @@ exports.default = (app, channel) => {
             return res.status(404).json({ error });
         }
     }));
-    app.post("/ids", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.post('/ids', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { ids } = req.body;
-        const products = yield service.GetSelectedProducts(ids);
-        return res.status(200).json(products);
+        try {
+            const products = yield service.GetSelectedProducts(ids);
+            return res.status(200).json(products);
+        }
+        catch (err) {
+            return res.status(404).json({ err });
+        }
     }));
-    app.get("/whoami", (req, res) => {
+    app.get('/whoami', (req, res) => {
         return res
             .status(200)
-            .json({ msg: "/ or /products : I am products Service" });
+            .json({ msg: '/ or /products : I am products Service' });
     });
     //get Top products and category
-    app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         //check validation
         try {
             const { data } = yield service.GetProducts();
