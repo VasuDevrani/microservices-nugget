@@ -1,5 +1,8 @@
 # 🛒Cart Shop
 ### Event driven microservice with tech blend and CI-CD
+➡️**API is not functional right now, to pause the billing of AWS services, but it works**
+
+</br>
 
 <img src="https://user-images.githubusercontent.com/101383635/235835542-ca1ff6df-8516-49a0-ac4a-e779ccd9c48b.png" width=700/>
 <img src="https://user-images.githubusercontent.com/101383635/236002694-81b05db8-4423-4d9e-ac18-0aa2338729d8.png" width=700/>
