@@ -1,6 +1,5 @@
 # 🛒Cart Shop
 ### Event driven microservice with tech blend and CI-CD
-> ⚠️ API is not functional right now, to pause the billing of AWS services, but it works
 
 </br>
 
@@ -58,5 +57,3 @@ Services :
 - git clone `https://github.com/VasuDevrani/cartshop-mcr-svr.git`
 - `docker-compose up`
 - wait for all services to start
-
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/24770121-448496c5-1d77-4e4c-898c-39da577c3b6a?action=collection%2Ffork&collection-url=entityId%3D24770121-448496c5-1d77-4e4c-898c-39da577c3b6a%26entityType%3Dcollection%26workspaceId%3D1a3ab5e7-5690-4728-a316-dec972dadd6f)
